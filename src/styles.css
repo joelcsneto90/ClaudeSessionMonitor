@@ -1,0 +1,715 @@
+:root {
+  --surface: #ffffff;
+  --page: #f4f4f6;
+  --ink: #1b1d22;
+  --muted: #6b7180;
+  --line: #e2e3e8;
+  --alert: #d97706;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Cabecalho ────────────────────────────────────────────────────────── */
+
+.app-header {
+  padding: 14px 24px;
+  background: #16181d;
+  color: #ffffff;
+}
+
+.app-header-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.botao-grupos {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 7px;
+  background: none;
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.botao-grupos:hover {
+  border-color: #ffffff;
+}
+
+.app-header h1 {
+  margin: 0 0 5px;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.status-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  color: rgb(255 255 255 / 70%);
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-chip-waiting {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.status-total {
+  padding-left: 14px;
+  border-left: 1px solid rgb(255 255 255 / 20%);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9aa0ae;
+}
+
+.dot-waiting {
+  background: #f59e0b;
+}
+
+.dot-busy {
+  background: #2e7d32;
+}
+
+.dot-shell {
+  background: #00796b;
+}
+
+.dot-idle {
+  background: #b9bdc7;
+}
+
+.banner {
+  margin: 16px 24px 0;
+  padding: 10px 14px;
+  border: 1px solid #ffd9a8;
+  border-radius: 8px;
+  background: #fff4e5;
+  color: #7a4a06;
+}
+
+/* ── Paineis ──────────────────────────────────────────────────────────── */
+
+/* Grid, nao colunas CSS: multicol para de preencher assim que a altura fecha, e com um
+   painel alto o resto se espremia em duas colunas, deixando a tela larga vazia. */
+.panels {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  align-items: start;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  padding: 20px 24px;
+}
+
+.panel {
+  overflow: hidden;
+  border: 1px solid var(--group);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--group);
+  font-weight: 600;
+}
+
+.panel-open {
+  overflow: hidden;
+  padding: 2px 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.panel-open:hover {
+  text-decoration: underline;
+}
+
+.panel-count {
+  flex: none; /* nome longo nao pode empurrar a contagem para fora do painel */
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.panel-empty {
+  margin: 0;
+  padding: 6px 2px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.panel-more {
+  padding: 8px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.panel-more:hover {
+  border-color: var(--group);
+  color: var(--ink);
+}
+
+/* ── Dialog do grupo ──────────────────────────────────────────────────── */
+
+.group-dialog {
+  width: min(620px, 92vw);
+  max-height: 84vh;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: 12px;
+}
+
+.group-dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+.dialog-close {
+  padding: 3px 10px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: calc(84vh - 44px);
+  padding: 14px 16px;
+  overflow-y: auto;
+  background: var(--surface);
+}
+
+/* ── Dialog de grupos ─────────────────────────────────────────────────── */
+
+.groups-dialog {
+  width: min(720px, 94vw);
+  max-height: 86vh;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: 12px;
+}
+
+.groups-dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+.groups-dialog-header {
+  background: #16181d;
+  color: #ffffff;
+}
+
+.groups-dialog .dialog-body {
+  max-height: calc(86vh - 100px);
+}
+
+.groups-dialog-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.salvar {
+  padding: 7px 18px;
+  border: none;
+  border-radius: 7px;
+  background: #1b4fd8;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fechar {
+  padding: 7px 18px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.regras-vazio {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.card-grupo {
+  margin-top: 10px;
+}
+
+.card-grupo select {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.card-grupo select:hover {
+  border-color: var(--group);
+  color: var(--ink);
+}
+
+.sep {
+  opacity: 0.4;
+}
+
+.regras code {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grupo-edit {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.grupo-edit-topo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.grupo-edit-topo input[type="text"] {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.grupo-edit-topo input[type="color"] {
+  width: 34px;
+  height: 30px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.grupo-remover {
+  color: #b3261e;
+}
+
+.regras {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.regras li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.regra-tipo {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--line);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.regras code {
+  flex: 1;
+}
+
+.regra-nova {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.regra-nova input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.dialog-body button,
+.sugestao button,
+.regra-nova button {
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dialog-body button:hover {
+  border-color: var(--ink);
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────── */
+
+.card {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  /* versao suave da cor do grupo, para o texto seguir legivel em qualquer grupo */
+  background: color-mix(in srgb, var(--group) 9%, var(--surface));
+}
+
+/* Sessao bloqueada esperando resposta: pisca para ser achada de longe.
+   Borda e fundo, nao box-shadow: o halo era cortado pelo overflow do painel. */
+.card-waiting {
+  border-color: var(--alert);
+  animation: piscar 1.2s steps(1, end) infinite;
+}
+
+.card-waiting .badge-waiting {
+  animation: piscar-badge 1.2s steps(1, end) infinite;
+}
+
+@keyframes piscar {
+  0%,
+  49% {
+    border-color: var(--alert);
+    background-color: #fcdfb0;
+  }
+  50%,
+  100% {
+    border-color: #f3d9ae;
+    background-color: #ffffff;
+  }
+}
+
+@keyframes piscar-badge {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.4;
+  }
+}
+
+/* Com "reduzir movimento" ligado nao desligamos a piscada — ela e o alerta —,
+   so baixamos o ritmo. Sem isto o Windows com animacoes desligadas nunca pisca. */
+@media (prefers-reduced-motion: reduce) {
+  .card-waiting,
+  .card-waiting .badge-waiting {
+    animation-duration: 2.4s;
+  }
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  flex: none;
+  /* default para um status que o Claude Code venha a adicionar; as regras abaixo sobrescrevem */
+  background: #d7d9e0;
+  color: #4a4f5a;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.badge-waiting {
+  background: #f59e0b;
+  color: #3a2600;
+}
+
+.badge-busy {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+.badge-shell {
+  background: #00796b;
+  color: #ffffff;
+}
+
+.badge-idle {
+  background: #d7d9e0;
+  color: #4a4f5a;
+}
+
+.card-cwd {
+  margin: 8px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-ctx {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.card-ctx-label {
+  color: var(--muted);
+}
+
+.card-ctx-pct {
+  min-width: 34px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.track {
+  flex: 1;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.track-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--group, #6b7180);
+}
+
+.card-meta {
+  display: flex;
+  gap: 18px;
+  margin: 10px 0 0;
+}
+
+.card-meta div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.card-meta dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.card-meta dd {
+  margin: 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.card-entrypoint {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.card-entrypoint-action {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.card-entrypoint-action:hover {
+  color: var(--ink);
+}
+
+.card-resume {
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.card-resume:hover {
+  border-color: var(--group);
+}
+
+/* ── Rodape ───────────────────────────────────────────────────────────── */
+
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 24px;
+  background: #16181d;
+  color: rgb(255 255 255 / 72%);
+  font-size: 12px;
+}
+
+.app-footer .track {
+  background: rgb(255 255 255 / 18%);
+}
+
+.app-footer .track-fill {
+  background: #9aa4b8;
+}
+
+.usage-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 22px;
+}
+
+.usage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.usage-label {
+  font-weight: 600;
+}
+
+.usage .track {
+  flex: none;
+  width: 110px;
+}
+
+.usage-pct {
+  min-width: 34px;
+  font-variant-numeric: tabular-nums;
+}
+
+.usage-reset {
+  opacity: 0.8;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.account-plan {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--line);
+  color: var(--ink);
+  font-weight: 600;
+}

@@ -1,0 +1,22 @@
+{
+  "name": "claude-status",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Painel local das sessoes do Claude Code abertas na maquina",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "vite",
+    "build": "vite build",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.3.0",
+    "vite": "8.3.7"
+  }
+}
