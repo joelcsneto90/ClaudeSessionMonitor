@@ -14,11 +14,15 @@ export default function App() {
   const waiting = sessions.filter((session) => session.status === 'waiting').length;
 
   const salvarGrupos = async (novos) => {
-    await fetch('/api/groups', {
+    const response = await fetch('/api/groups', {
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(novos),
     });
+    if (!response.ok) {
+      const body = await response.json();
+      throw new Error(body.error ?? `HTTP ${response.status}`);
+    }
   };
 
   // Mover uma sessao e uma regra do tipo "session" no grupo de destino; ela vence

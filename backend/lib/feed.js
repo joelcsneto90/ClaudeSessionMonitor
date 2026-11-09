@@ -24,12 +24,24 @@ export function readFeed(dir = FEED_DIR) {
   return bySession;
 }
 
-// Rate limit e por conta, nao por sessao: vale o feed escrito mais recentemente.
-export function latestUsage(feed) {
-  let latest = null;
+// Cada janela e da conta e pode vir de uma sessao diferente.
+export function latestUsage(feed, now = Date.now()) {
+  const usage = { fiveHour: null, sevenDay: null, ts: 0 };
   for (const entry of feed.values()) {
-    if (!entry.fiveHour && !entry.sevenDay) continue;
-    if (!latest || entry.ts > latest.ts) latest = entry;
+    for (const key of ['fiveHour', 'sevenDay']) {
+      const limit = entry[key];
+      if (!limit) continue;
+      const resetAt = typeof limit.resets_at === 'number'
+        ? (limit.resets_at < 1e12 ? limit.resets_at * 1000 : limit.resets_at)
+        : Date.parse(limit.resets_at);
+      if (!Number.isFinite(resetAt) || resetAt <= now) continue;
+
+      const receivedAt = limit.receivedAt ?? entry.ts;
+      if (!usage[key] || receivedAt > usage[key].receivedAt) {
+        usage[key] = { ...limit, receivedAt };
+        usage.ts = Math.max(usage.ts, receivedAt);
+      }
+    }
   }
-  return latest && { fiveHour: latest.fiveHour, sevenDay: latest.sevenDay, ts: latest.ts };
+  return usage.fiveHour || usage.sevenDay ? usage : null;
 }

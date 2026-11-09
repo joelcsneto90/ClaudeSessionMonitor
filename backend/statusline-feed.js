@@ -18,18 +18,41 @@ export function recordStatuslinePayload(payload, dir = FEED_DIR) {
     // gravar ali apagaria um feed bom por cima.
     if (!payload.context_window && !payload.rate_limits) return false;
 
+    const now = Date.now();
+    const file = path.join(dir, `${sessionId}.json`);
+    const incoming = {
+      fiveHour: payload.rate_limits?.five_hour,
+      sevenDay: payload.rate_limits?.seven_day,
+    };
+    let previous = null;
+    if (!incoming.fiveHour || !incoming.sevenDay) {
+      try {
+        previous = JSON.parse(fs.readFileSync(file, 'utf8'));
+      } catch (error) {
+        // Uma chamada cancelada da statusline pode deixar o feed truncado.
+        if (error.code !== 'ENOENT' && !(error instanceof SyntaxError)) throw error;
+      }
+    }
+
+    const windows = {};
+    for (const key of ['fiveHour', 'sevenDay']) {
+      const limit = incoming[key] ?? previous?.[key];
+      windows[key] = limit
+        ? { ...limit, receivedAt: incoming[key] ? now : limit.receivedAt ?? previous.ts }
+        : null;
+    }
+
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(
-      path.join(dir, `${sessionId}.json`),
+      file,
       JSON.stringify({
         sessionId,
         ctxPct: payload.context_window?.used_percentage ?? null,
-        fiveHour: payload.rate_limits?.five_hour ?? null,
-        sevenDay: payload.rate_limits?.seven_day ?? null,
+        ...windows,
         model: payload.model?.display_name ?? null,
         effort: payload.effort?.level ?? null,
         cost: payload.cost ?? null,
-        ts: Date.now(),
+        ts: now,
       })
     );
     return true;

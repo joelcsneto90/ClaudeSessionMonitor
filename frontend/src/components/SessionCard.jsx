@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { ago, STATUS_LABEL } from '../format.js';
 
 export function SessionCard({ session, groups, onMover }) {
   const [copied, setCopied] = useState(null);
   const [focusing, setFocusing] = useState(null);
+  const [choosingGroup, setChoosingGroup] = useState(false);
+  const [moving, setMoving] = useState(false);
+  const [moveError, setMoveError] = useState(null);
+  const actions = useRef(null);
+  const actionsTitle = useId();
   const waiting = session.status === 'waiting';
   const command = `claude --resume ${session.sessionId}`;
   const inEditor = session.entrypoint === 'claude-vscode';
@@ -28,6 +33,25 @@ export function SessionCard({ session, groups, onMover }) {
       setFocusing(failure.message);
     }
     setTimeout(() => setFocusing(null), 2000);
+  };
+
+  const openActions = () => {
+    setChoosingGroup(false);
+    setMoveError(null);
+    actions.current.showModal();
+  };
+
+  const move = async (destination) => {
+    setMoving(true);
+    setMoveError(null);
+    try {
+      await onMover(session, destination);
+      actions.current?.close();
+    } catch (failure) {
+      setMoveError(failure.message);
+    } finally {
+      setMoving(false);
+    }
   };
 
   return (
@@ -75,28 +99,6 @@ export function SessionCard({ session, groups, onMover }) {
         </div>
       </dl>
 
-      <div className="card-grupo">
-        <select
-          value=""
-          aria-label="Mover para um grupo"
-          onChange={(evento) => {
-            const destino = evento.target.value;
-            evento.target.value = '';
-            if (destino) onMover(session, destino);
-          }}
-        >
-          <option value="">adicionar a grupo…</option>
-          {groups
-            .filter((grupo) => grupo.id !== session.groupId)
-            .map((grupo) => (
-              <option key={grupo.id} value={grupo.id}>
-                {grupo.name}
-              </option>
-            ))}
-          {session.cwd && <option value="__novo__">novo grupo com esta pasta</option>}
-        </select>
-      </div>
-
       <footer className="card-footer">
         {inEditor ? (
           <button
@@ -111,10 +113,64 @@ export function SessionCard({ session, groups, onMover }) {
           <span className="card-entrypoint">{session.entrypoint ?? '—'}</span>
         )}
 
-        <button type="button" className="card-resume" onClick={copy} title={command}>
-          {copied ?? 'copiar retomada'}
+        <button type="button" className="card-actions" onClick={openActions} aria-haspopup="dialog">
+          Ações
         </button>
       </footer>
+
+      <dialog
+        ref={actions}
+        className="group-dialog session-actions"
+        aria-labelledby={actionsTitle}
+        onClick={(event) => {
+          if (event.target === actions.current) actions.current.close();
+        }}
+      >
+        <header className="dialog-header">
+          <span id={actionsTitle}>{choosingGroup ? 'Adicionar ao grupo' : 'Ações'}</span>
+          <button type="button" className="dialog-close" onClick={() => actions.current.close()}>
+            fechar
+          </button>
+        </header>
+        <div className="session-actions-body">
+          <p className="session-actions-title">{session.title ?? session.name}</p>
+          {choosingGroup ? (
+            <>
+              {groups
+                .filter((grupo) => grupo.id !== session.groupId)
+                .map((grupo) => (
+                  <button
+                    key={grupo.id}
+                    type="button"
+                    disabled={moving}
+                    onClick={() => move(grupo.id)}
+                  >
+                    {grupo.name}
+                  </button>
+                ))}
+              {session.cwd && (
+                <button type="button" disabled={moving} onClick={() => move('__novo__')}>
+                  novo grupo com esta pasta
+                </button>
+              )}
+              {moveError && <p role="alert">{moveError}</p>}
+              <button type="button" disabled={moving} onClick={() => setChoosingGroup(false)}>
+                voltar
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" onClick={copy} title={command}>
+                {copied ?? 'copiar retomada'}
+              </button>
+              <button type="button" onClick={() => setChoosingGroup(true)}>
+                adicionar ao grupo
+              </button>
+              {copied === 'copie do título' && <code>{command}</code>}
+            </>
+          )}
+        </div>
+      </dialog>
     </article>
   );
 }

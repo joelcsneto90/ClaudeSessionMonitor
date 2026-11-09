@@ -310,27 +310,6 @@ body {
   font-style: italic;
 }
 
-.card-grupo {
-  margin-top: 10px;
-}
-
-.card-grupo select {
-  width: 100%;
-  padding: 5px 8px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.card-grupo select:hover {
-  border-color: var(--group);
-  color: var(--ink);
-}
-
 .sep {
   opacity: 0.4;
 }
@@ -617,12 +596,14 @@ body {
   font-weight: 700;
 }
 
-.card-entrypoint-action {
+.card-entrypoint.card-entrypoint-action {
   padding: 0;
   border: none;
   background: none;
   font: inherit;
   font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -632,7 +613,8 @@ body {
   color: var(--ink);
 }
 
-.card-resume {
+.card-actions,
+.session-actions-body button {
   padding: 4px 10px;
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -643,8 +625,32 @@ body {
   cursor: pointer;
 }
 
-.card-resume:hover {
+.card-actions:hover,
+.session-actions-body button:hover {
   border-color: var(--group);
+}
+
+.session-actions {
+  width: min(420px, 92vw);
+  color: var(--ink);
+}
+
+.session-actions-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(84vh - 44px);
+  padding: 14px 16px;
+  overflow-y: auto;
+}
+
+.session-actions-title {
+  margin: 0 0 4px;
+  overflow-wrap: anywhere;
+}
+
+.session-actions-body button {
+  text-align: left;
 }
 
 /* ── Rodape ───────────────────────────────────────────────────────────── */
@@ -680,6 +686,16 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.usage-window {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.usage-details {
+  font-size: 11px;
 }
 
 .usage-label {

@@ -5,7 +5,7 @@ function UsageBar({ label, window: limit }) {
   const reset = untilReset(limit?.resets_at);
 
   return (
-    <>
+    <div className="usage-window">
       <span className="usage">
         <span className="usage-label">{label}</span>
         <span className="track">
@@ -13,29 +13,28 @@ function UsageBar({ label, window: limit }) {
         </span>
         <span className="usage-pct">{pct === null ? '—' : `${Math.round(pct)}%`}</span>
       </span>
-      {reset && (
-        <>
-          <span className="sep">|</span>
-          <span className="usage-reset">reseta em {reset}</span>
-        </>
-      )}
-    </>
+      <span className="usage-details">
+        {reset && <span className="usage-reset">reseta em {reset} · </span>}
+        <span
+          className="usage-age"
+          title="Horário em que a statusline enviou esta leitura, não de uma consulta ao servidor."
+        >
+          {limit
+            ? `feed recebido há ${ago(limit.receivedAt)}`
+            : 'sem leitura válida — aguardando a statusline'}
+        </span>
+      </span>
+    </div>
   );
 }
 
 export function Footer({ usage, account }) {
   return (
     <footer className="app-footer">
-      <div className="usage-group">
-        <UsageBar label="Sessão 5h" window={usage?.fiveHour} />
+      <div className="usage-group" aria-label="Limites de uso da conta via statusline">
+        <UsageBar label="Conta · 5h" window={usage?.fiveHour} />
         <span className="sep">|</span>
-        <UsageBar label="Semana 7d" window={usage?.sevenDay} />
-        <span className="sep">|</span>
-        <span className="usage-age">
-          {usage
-            ? `atualizado há ${ago(usage.ts)}`
-            : 'sem dados — a statusline ainda não alimenta o feed'}
-        </span>
+        <UsageBar label="Conta · 7 dias" window={usage?.sevenDay} />
       </div>
 
       {account && (

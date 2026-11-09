@@ -4,7 +4,7 @@ Painel local que mostra, em tempo real, as sessões do Claude Code abertas na m�
 
 ## Propósito
 
-Quem trabalha com várias sessões do Claude Code em paralelo (CLI e extensão do VS Code) perde o controle de qual está ocupada, qual espera input e quanto de contexto e limite de uso cada uma já gastou. O ClaudeStatus resolve isso em uma única página local:
+Quem trabalha com várias sessões do Claude Code em paralelo (CLI e extensão do VS Code) perde o controle de qual está ocupada, qual espera input, quanto de contexto cada uma já gastou e quanto resta dos limites da conta. O ClaudeStatus resolve isso em uma única página local:
 
 - lista as sessões vivas, ordenadas por atividade (ocupadas, aguardando input, ociosas);
 - mostra o % de contexto de cada sessão e as janelas de rate limit (5 h e 7 dias);
@@ -70,3 +70,11 @@ cd frontend && npm test
 ## Feed da statusline (opcional)
 
 Para ter o % de contexto exato e os rate limits, a statusline do Claude Code deve chamar `recordStatuslinePayload(payload)` de `backend/statusline-feed.js` com o JSON que recebe. Sem isso o painel estima o contexto pelo transcript.
+
+O painel consulta a API local a cada **2 segundos**; ele não consulta diretamente a Anthropic. Os limites de **5 horas e 7 dias são da conta**, não de cada sessão. Cada janela usa a leitura mais recente disponível entre os feeds, independentemente da outra.
+
+Um payload só de contexto ou sem uma das janelas não apaga os limites já recebidos nem renova seus horários. Leituras com reset vencido ou inválido não são exibidas como consumo atual: o painel mostra `—` até receber uma leitura válida. Feeds antigos, sem horário individual por janela, continuam usando o horário de gravação original.
+
+O rodapé mostra **quando cada leitura foi recebida da statusline**, não quando o uso foi consultado no servidor. A statusline normalmente roda nos eventos do Claude Code, como novas respostas. Nas versões que suportam `statusLine.refreshInterval`, um intervalo como `60` reexecuta o comando durante períodos ociosos, mas não garante dados novos da Anthropic. A configuração local existente não é alterada por este projeto.
+
+Referência: [statusline do Claude Code](https://code.claude.com/docs/en/statusline).

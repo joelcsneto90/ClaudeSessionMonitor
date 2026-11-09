@@ -5,6 +5,7 @@ export function GroupsDialog({ groups, onSave, onClose }) {
   const dialog = useRef(null);
   const [rascunho, setRascunho] = useState(groups);
   const [prefixoNovo, setPrefixoNovo] = useState({});
+  const [erro, setErro] = useState(null);
 
   useEffect(() => {
     dialog.current?.showModal();
@@ -56,8 +57,13 @@ export function GroupsDialog({ groups, onSave, onClose }) {
   };
 
   const salvar = async () => {
-    await onSave(rascunho);
-    fechar();
+    setErro(null);
+    try {
+      await onSave(rascunho);
+      fechar();
+    } catch (failure) {
+      setErro(failure.message);
+    }
   };
 
   return (
@@ -70,6 +76,7 @@ export function GroupsDialog({ groups, onSave, onClose }) {
       </header>
 
       <div className="dialog-body">
+        {erro && <p role="alert">{erro}</p>}
         {rascunho.map((grupo, indice) => (
           <section key={grupo.id} className="grupo-edit">
             <div className="grupo-edit-topo">
