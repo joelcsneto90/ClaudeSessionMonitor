@@ -1,0 +1,12 @@
+{
+  "name": "claude-status-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "API local das sessoes do Claude Code abertas na maquina",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  }
+}

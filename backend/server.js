@@ -14,7 +14,7 @@ import { focusEditor } from './lib/focus.js';
 
 const HOST = process.env.HOST || '127.0.0.1';
 const PORT = Number(process.env.PORT) || 7788;
-const DIST = path.join(path.dirname(fileURLToPath(import.meta.url)), 'dist');
+const DIST = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'frontend', 'dist');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -92,7 +92,7 @@ function serveStatic(req, res) {
 
   if (!fs.existsSync(file)) {
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
-    res.end('ClaudeStatus: API no ar. A UI ainda nao foi buildada (npm run build).\n');
+    res.end('ClaudeStatus: API no ar. A UI ainda nao foi buildada (npm run build em frontend/).\n');
     return;
   }
   res.writeHead(200, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream' });
